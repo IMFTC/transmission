@@ -82,9 +82,13 @@ on_popup_menu (GtkWidget * self UNUSED,
 {
   GtkWidget * menu = gtr_action_get_widget ("/main-window-popup");
 
+#if GTK_CHECK_VERSION(3,22,0)
+  gtk_menu_popup_at_pointer (GTK_MENU (menu), event);
+#else
   gtk_menu_popup (GTK_MENU (menu), NULL, NULL, NULL, NULL,
                   (event ? event->button : 0),
                   (event ? event->time : 0));
+#endif
 }
 
 static void
@@ -231,13 +235,21 @@ privateFree (gpointer vprivate)
 }
 
 static void
-onYinYangReleased (GtkWidget * w UNUSED, gpointer vprivate)
+onYinYangReleased (GtkWidget * button, gpointer vprivate)
 {
   PrivateData * p = vprivate;
 
+#if GTK_CHECK_VERSION(3,22,0)
+  gtk_menu_popup_at_widget (GTK_MENU (p->status_menu),
+                            button,
+                            GDK_GRAVITY_SOUTH_WEST,
+                            GDK_GRAVITY_NORTH_WEST,
+                            NULL);
+#else
   gtk_menu_popup (GTK_MENU (p->status_menu),
                   NULL, NULL, NULL, NULL, 0,
                   gtk_get_current_event_time ());
+#endif
 }
 
 #define STATS_MODE "stats-mode"
@@ -551,7 +563,7 @@ createOptionsMenu (PrivateData * p)
 }
 
 static void
-onOptionsClicked (GtkButton * button UNUSED, gpointer vp)
+onOptionsClicked (GtkButton * button, gpointer vp)
 {
   char buf1[512];
   char buf2[512];
@@ -582,7 +594,15 @@ onOptionsClicked (GtkButton * button UNUSED, gpointer vp)
   b = gtr_pref_flag_get (TR_KEY_ratio_limit_enabled);
   gtk_check_menu_item_set_active (GTK_CHECK_MENU_ITEM (b ? p->ratio_on_item : p->ratio_off_item), TRUE);
 
+#if GTK_CHECK_VERSION(3,22,0)
+  gtk_menu_popup_at_widget (GTK_MENU (p->options_menu),
+                            button,
+                            GDK_GRAVITY_SOUTH_WEST,
+                            GDK_GRAVITY_NORTH_WEST,
+                            NULL);
+#else
   gtk_menu_popup (GTK_MENU (p->options_menu), NULL, NULL, NULL, NULL, 0, gtk_get_current_event_time ());
+#endif
 }
 
 /***
